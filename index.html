@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NES Emulator บนเว็บ</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            font-family: sans-serif;
+            background-color: #f0f0f0;
+        }
+        canvas {
+            border: 2px solid #333;
+            background-color: #000;
+        }
+        #controls {
+            margin-top: 15px;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hit-Me! Uncle Sen</h1>
+    <canvas id="nes-canvas" width="256" height="240"></canvas>
+    <div id="controls">
+        ใช้ปุ่มลูกศรเพื่อเคลื่อนที่, Z เพื่อ A, X เพื่อ B, Enter เพื่อ Start
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsnes/1.2.1/jsnes.min.js"></script>
+    <script>
+        // โค้ด JavaScript ที่จะควบคุม Emulator
+        var nes;
+        var romData;
+
+        function loadRom(url) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", url);
+            xhr.responseType = "arraybuffer";
+
+            xhr.onload = function() {
+                if (this.status === 200) {
+                    romData = new Uint8Array(this.response);
+                    nes.loadROM(romData);
+                    nes.start();
+                } else {
+                    console.error("Failed to load ROM: " + url);
+                }
+            };
+            xhr.send();
+        }
+
+        window.onload = function() {
+            var canvas = document.getElementById("nes-canvas");
+            nes = new JSNES({
+                'canvasId': 'nes-canvas'
+            });
+
+            // แก้ไขตรงนี้เป็นชื่อไฟล์ ROM ของคุณ
+            loadRom('smb.nes');
+
+            document.addEventListener('keydown', function(event) {
+                switch (event.key) {
+                    case 'ArrowUp': nes.buttonDown(JSNES.Key.UP); break;
+                    case 'ArrowDown': nes.buttonDown(JSNES.Key.DOWN); break;
+                    case 'ArrowLeft': nes.buttonDown(JSNES.Key.LEFT); break;
+                    case 'ArrowRight': nes.buttonDown(JSNES.Key.RIGHT); break;
+                    case 'z': nes.buttonDown(JSNES.Key.A); break;
+                    case 'x': nes.buttonDown(JSNES.Key.B); break;
+                    case 'Enter': nes.buttonDown(JSNES.Key.START); break;
+                    case 'Shift': nes.buttonDown(JSNES.Key.SELECT); break;
+                }
+            });
+
+            document.addEventListener('keyup', function(event) {
+                switch (event.key) {
+                    case 'ArrowUp': nes.buttonUp(JSNES.Key.UP); break;
+                    case 'ArrowDown': nes.buttonUp(JSNES.Key.DOWN); break;
+                    case 'ArrowLeft': nes.buttonUp(JSNES.Key.LEFT); break;
+                    case 'ArrowRight': nes.buttonUp(JSNES.Key.RIGHT); break;
+                    case 'z': nes.buttonUp(JSNES.Key.A); break;
+                    case 'x': nes.buttonUp(JSNES.Key.B); break;
+                    case 'Enter': nes.buttonUp(JSNES.Key.START); break;
+                    case 'Shift': nes.buttonUp(JSNES.Key.SELECT); break;
+                }
+            });
+        };
+    </script>
+</body>
+</html>
